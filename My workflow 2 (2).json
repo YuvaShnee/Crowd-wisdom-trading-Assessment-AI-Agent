@@ -1,0 +1,531 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1024,
+        -400
+      ],
+      "id": "bb7c20a6-07ea-4612-bde9-6d3f55a028ae",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1AUVQnmJRCUP9AqPIe3ilP9xDWKSdXBb2_Te8gt70UG4",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "yuva",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AUVQnmJRCUP9AqPIe3ilP9xDWKSdXBb2_Te8gt70UG4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -816,
+        -416
+      ],
+      "id": "95a930f5-1a31-4c81-a4d3-b4d2a4dc4d07",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gJjCOVMHlricmez0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "competitor_name",
+        "include": "selectedOtherFields",
+        "fieldsToInclude": "yuvashneeyuvas@gmail.com",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        -400
+      ],
+      "id": "465922f2-7fae-42e2-b784-154bbb47ea88",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "aYG0l9s7dbB7j3gbS",
+          "mode": "list",
+          "cachedResultName": "Website Content Crawler (apify/website-content-crawler)",
+          "cachedResultUrl": "https://console.apify.com/actors/aYG0l9s7dbB7j3gbS/input"
+        },
+        "customBody": "{\n  \"startUrls\": [\n    { \"url\": \"https://zerodha.com\" },\n    { \"url\": \"https://upstox.com\" },\n    { \"url\": \"https://www.angelone.in\" },\n    { \"url\": \"https://www.fyers.in\" },\n    { \"url\": \"https://groww.in\" }\n  ],\n  \"maxDepth\": 2,\n  \"maxPagesPerCrawl\": 50,\n  \"proxyConfiguration\": {\n    \"useApifyProxy\": true\n  },\n  \"extendOutputFunction\": \"async ({ page, request, html }) => {\\n  return {\\n    title: await page.title(),\\n    url: request.url,\\n    htmlContent: html\\n  };\\n}\",\n  \"maxConcurrency\": 5\n}"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -416
+      ],
+      "id": "23465b50-17a0-439b-9c09-8cdfa0c906ec",
+      "name": "Run an Actor",
+      "credentials": {
+        "apifyApi": {
+          "id": "BO4eZh1rxghHn1nq",
+          "name": "Apify account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get dataset items from previous node\nconst data = items.map(item => item.json);\n\n// Clean each page object\nconst cleaned = data.map(d => {\n\n  // Safely clean HTML (remove whitespace, trim)\n  const html = typeof d.htmlContent === \"string\"\n    ? d.htmlContent.replace(/\\s+/g, \" \").trim()\n    : \"\";\n\n  return {\n    title: d.title || \"Untitled\",\n    url: d.url || null,\n    wordCount: html.split(\" \").length,\n    htmlContent: html,\n  };\n});\n\n// Sort by biggest content page\ncleaned.sort((a, b) => b.wordCount - a.wordCount);\n\n// Return as final n8n output\nreturn [\n  {\n    json: {\n      pages: cleaned,\n      biggestPage: cleaned[0] || null,\n      totalPages: cleaned.length,\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -384
+      ],
+      "id": "bcb10de4-43de-447d-b2d7-0a35cd922dab",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "Analyze this video in depth and break down:\n\n1. Hook (first 3 seconds) — what makes it powerful?\n2. Visual elements — camera, colors, transitions, text.\n3. Editing style — pacing, cuts, pattern interrupts.\n4. Audio & sound design — music, tone, effects.\n5. Script structure — how the story flows.\n6. Viral psychology — curiosity, novelty, relatability, tension.\n7. WHY this video performed well.\n8. Repeatable patterns I can use to make similar viral videos.",
+        "videoUrls": "https://www.youtube.com/watch?v=lbXxu9xoDB4 ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -416
+      ],
+      "id": "41c9b34b-4a54-4348-95a0-0acbaded1ccb",
+      "name": "Analyze video",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ed1fNNzGgVIrg1KF",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -944,
+        -112
+      ],
+      "id": "d0dc8f35-a071-49d2-82f8-1aa9657601a9",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const errorData = $json || {};\n\nreturn [\n  {\n    json: {\n      timestamp: new Date().toISOString(),\n      workflow: $workflow.name || \"Unknown workflow\",\n      node: errorData.node || \"Unknown node\",\n      message: errorData.message || \"No error message\",\n      stack: errorData.stack || \"No stack trace\"\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -736,
+        -96
+      ],
+      "id": "225f1ea0-22a4-48e4-949c-5795d2a8b6c8",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1S_KgjAAJWwJjThyZe-WyP6L4yjMNlHBWiBRDLubbFGk",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "error result",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1S_KgjAAJWwJjThyZe-WyP6L4yjMNlHBWiBRDLubbFGk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.timestamp }}",
+            "workflow": "={{ $json.workflow }}",
+            "node": "={{ $json.node }}",
+            "stack": "={{ $json.stack }}",
+            "error message": "={{ $json.message }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "node",
+              "displayName": "node",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error message",
+              "displayName": "error message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stack",
+              "displayName": "stack",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -528,
+        -96
+      ],
+      "id": "b342348a-e3a3-411b-8502-c234140a06d7",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gJjCOVMHlricmez0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/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",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"text\": \"⚠️ Error occurred in n8n workflow! Check logs immediately.\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -320,
+        -80
+      ],
+      "id": "aa896e46-fe62-4640-bd24-8a9e0945e857",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convert llm_response string into usable JSON\nconst raw = $json.llm_response;\nconst parsed = JSON.parse(raw);\n\n// Return final JSON for next nodes (Google Sheet / HTML etc.)\nreturn [ parsed ];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        -432
+      ],
+      "id": "e85d4b9c-5cea-4a74-8d3f-0dda52425fc2",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "query": "=ByYou are a marketing analysis AI. Based on the competitor video data provided, generate outputs in the following JSON structure only. Do not add any explanation or text outside the JSON.  Return the result as structured JSON exactly like this:  {   \"html_summary\": \"HTML formatted summary that can be used for a report dashboard\",   \"video_analysis\": \"summary of what makes this video successful and key learnings\",   \"best_video_url\": \"{{ $json.video_url }}\",   \"ad_scripts\": \"Write 3 ad scripts in bullet points inspired by the video using Pain → Solution → CTA format\" }  Important rules: - Do NOT include ```json or code block formatting - Do NOT include extra text outside the JSON - Ensure the JSON is valid and parsable",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-llmlayer.llmLayer",
+      "typeVersion": 1,
+      "position": [
+        192,
+        -448
+      ],
+      "id": "88ddc4ee-b5e6-469f-bee8-9cf138c2ef6b",
+      "name": "Generate an answer",
+      "credentials": {
+        "llmLayerApi": {
+          "id": "X0eA0LojYgA15UZH",
+          "name": "LLMLayer account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "12Yn26EA8nzNqDACmKvBL7niY5rEFLNay_en3BG9NoxA",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "shnee",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Yn26EA8nzNqDACmKvBL7niY5rEFLNay_en3BG9NoxA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Html summary": "={{$json.html_summary}}",
+            "Video analysis": "={{$json.video_analysis}}",
+            "best video url": "={{$json.best_video_url}}",
+            "ad script 0": "=\t{{$json.ad_scripts[0]}}",
+            "ad script 1": "={{$json.ad_scripts[1]}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Html summary",
+              "displayName": "Html summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Video analysis",
+              "displayName": "Video analysis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "best video url",
+              "displayName": "best video url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ad script 0",
+              "displayName": "ad script 0",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ad script 1",
+              "displayName": "ad script 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        -416
+      ],
+      "id": "4678872b-0a52-4b5d-a66d-3ebf3bca90f9",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gJjCOVMHlricmez0",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run an Actor": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Analyze video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze video": {
+      "main": [
+        [
+          {
+            "node": "Generate an answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an answer": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d96b3a4d-22a6-416c-bacb-8179f692e664",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e69f884a01ef420014bd8d69420a860ca16bb65b1d5ab7c2a7a647a8bb49472"
+  },
+  "id": "Bzz62lW1x4xVW5EU",
+  "tags": []
+}
