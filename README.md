@@ -1,0 +1,1 @@
+# Crowd-wisdom-trading-Assessment-AI-Agent
